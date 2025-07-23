@@ -16,5 +16,9 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api',DeviceRoutes);
 
+app.get('/',(req,res) => {
+    res.status(200).json({message : "server is working"})
+})
+
 const PORT = process.env.PORT || 4005;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
