@@ -1,15 +1,13 @@
+// ecosystem.config.js
 module.exports = {
   apps: [
     {
-      name: "backend-api",
-      script: "server.js",
-      instances: 1,
-      autorestart: true,
-      watch: false,
+      name: "temp-humidity-api",
+      script: "server.js", // change if your entry is index.js
       env: {
         NODE_ENV: "production",
-        PORT: 4005,
-      },
-    },
-  ],
+        PORT: 4005
+      }
+    }
+  ]
 };
