@@ -18,22 +18,42 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Sync files to server
+      - name: Upload backend files
         run: |
           rsync -avz --delete \
             -e "ssh -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/html/somesh/Temp-humidiy-logger-api \
             --exclude='.git' --exclude='.github' --exclude='node_modules'
 
-      - name: Deploy backend via SSH
+      - name: Debug deployment
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          ssh -tt -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            echo "==> WHOAMI:"
+            whoami
+
+            echo "==> ENV:"
+            env
+
+            echo "==> Check if NVM exists"
+            ls -l $HOME/.nvm/nvm.sh || echo "NVM not found!"
+
+            echo "==> Source NVM and use Node"
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             nvm install 18
             nvm use 18
+            node -v
+            npm -v
+
+            echo "==> Go to API directory"
             cd /var/www/html/somesh/Temp-humidiy-logger-api
+            ls -lah
+
+            echo "==> Run npm install"
             npm install
+
+            echo "==> Start PM2"
             npx pm2 restart ecosystem.config.js || npx pm2 start ecosystem.config.js
             npx pm2 save
-          EOF
+  
+            EOF
