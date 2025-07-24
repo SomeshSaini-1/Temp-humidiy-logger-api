@@ -4,6 +4,7 @@ const Device = require('../models/Device')
 exports.DeviceRegister = async (req,res) => {
     try{
         const {devicename, deviceid, region, category, comment, date, status, Organization, City, Mode} = req.body;
+        
         const device = new Device({devicename, deviceid, region, category, comment, date, status, Organization, City, Mode});
         await device.save();
         
