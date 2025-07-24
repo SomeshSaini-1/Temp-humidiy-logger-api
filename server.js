@@ -2,7 +2,7 @@ const express = require('express');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const DeviceRoutes = require("./routes/deviceRoutes");
-const cors = require("cors");
+const cors = require('cors'); // Import cors
 require('dotenv').config();
 
 const app = express();
@@ -10,28 +10,22 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
+// Enable CORS for all domains
+app.use(cors({ origin: '*' }));
+
 // Middleware
 app.use(express.json());
-// Allow all origins (open CORS)
-app.use(cors());
-
-
 
 // Routes
 app.use('/api/users', userRoutes);
-app.use('/api',DeviceRoutes);
+app.use('/api', DeviceRoutes);
 
-app.get('/',(req,res) => {
-    res.status(200).json({message : "server is working."})
-})
+app.get('/', (req, res) => {
+    res.status(200).json({ message: "server is working." });
+});
 
 const PORT = process.env.PORT || 4005;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-
-
-
-
 
 
 
