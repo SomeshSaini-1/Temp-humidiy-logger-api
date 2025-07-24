@@ -45,4 +45,4 @@ jobs:
             echo "==> Running PM2"
             npx pm2 restart ecosystem.config.js || npx pm2 start ecosystem.config.js
             npx pm2 save
-            EOF
+            STOP
