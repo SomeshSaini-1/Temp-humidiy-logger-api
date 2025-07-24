@@ -2,6 +2,7 @@ const express = require('express');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const DeviceRoutes = require("./routes/deviceRoutes");
+const cors = require("cors");
 require('dotenv').config();
 
 const app = express();
@@ -11,6 +12,10 @@ connectDB();
 
 // Middleware
 app.use(express.json());
+// Allow all origins (open CORS)
+app.use(cors());
+
+
 
 // Routes
 app.use('/api/users', userRoutes);
