@@ -7,6 +7,8 @@ require('dotenv').config();
 
 const app = express();
 
+require('./info_script')
+
 // Connect to MongoDB
 connectDB();
 
