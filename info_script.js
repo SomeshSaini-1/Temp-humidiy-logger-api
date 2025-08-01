@@ -57,7 +57,7 @@ client.on('message', async (topic, message) => {
             pm: '098098',
         };
 
-        console.log('ðŸ“¥ Received MQTT data:', payload);
+        console.log(' Received MQTT data:', payload);
 
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -66,9 +66,9 @@ client.on('message', async (topic, message) => {
         });
 
         const result = await response.text();
-        console.log('âœ… API response:', result);
+        console.log(' API response:', result);
     } catch (error) {
-        console.error('âŒ Error processing MQTT message or API call:', error);
+        console.error(' Error processing MQTT message or API call:', error);
     }
 });
 
@@ -77,7 +77,7 @@ client.on('error', (err) => {
 });
 
 client.on('close', () => {
-    console.log('ðŸ”Œ Disconnected from MQTT broker');
+    console.log(' Disconnected from MQTT broker');
 });
 
 
