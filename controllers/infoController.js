@@ -19,19 +19,32 @@ exports.DeviceInfo = async (req, res) => {
 
 }
 
-
-
 exports.get_DeviceInfo = async (req, res) => {
     try {
-        const { device_id } = req.body;
+        const { device_id, page = 1, limit = 100 } = req.body;
 
-        let info;
-        if (device_id === "all") {
-            info = await Info.find();
-        } else {
-            info = await Info.find({device_id});
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        let query = {};
+        if (device_id && device_id !== "all") {
+            query.device_id = device_id;
         }
-        res.status(200).json(info);
+
+        const info = await Info.find(query)
+            .skip(skip)
+            .limit(parseInt(limit))
+            .sort({ date: -1 });
+
+        const total = await Info.countDocuments(query);
+
+        res.status(200).json(info)
+
+        // res.status(200).json({
+        //     data: info,
+        //     currentPage: parseInt(page),
+        //     totalPages: Math.ceil(total / limit),
+        //     totalItems: total
+        // });
     } catch (error) {
         console.error("Databass error : ", error);
         res.status(500).json({ error: error.message });
