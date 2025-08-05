@@ -9,7 +9,9 @@ router.post('/Delete_device',deviceControler.deleteDevice);
 router.post("/Update_device",deviceControler.update_device);
 
 router.post("/add_Info",infomation.DeviceInfo);
-router.post("/get_Info",infomation.get_DeviceInfo)
+router.post("/get_Info",infomation.get_DeviceInfo);
+router.get("/Get_info_excle",infomation.Get_info_excle);
+
 
 module.exports = router;
 
