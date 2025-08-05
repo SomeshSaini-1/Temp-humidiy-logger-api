@@ -2,6 +2,7 @@ const Info = require('../models/Info');
 const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
+const PDFDocument = require('pdfkit');
 
 
 exports.Get_info_excle = async (req, res) => {
@@ -15,10 +16,10 @@ exports.Get_info_excle = async (req, res) => {
                 $gte: new Date(`${from}T00:00:00Z`),
                 $lte: new Date(`${to}T23:59:59Z`)
             }
-        }).lean(); // use .lean() to return plain JS objects
+        }).lean(); // use .lean() to return plain JS objects  
 
-        if (info.length === 0) {
-            return res.status(404).json({ message: "No data found for the given criteria." });
+        if (info.length === 0) {  
+            return res.status(404).json({ message: "No data found for the given criteria.  " });
         }
 
         // Convert to worksheet
@@ -42,6 +43,59 @@ exports.Get_info_excle = async (req, res) => {
     }
 };
 
+exports.Get_info_pdf = async (req, res) => {
+  try {
+    const { device_id, from, to } = req.query;
+
+    const info = await Info.find({
+      device_id: device_id,
+      createdAt: {
+        $gte: new Date(`${from}T00:00:00Z`),
+        $lte: new Date(`${to}T23:59:59Z`)
+      }
+    }).lean();
+
+    if (info.length === 0) {
+      return res.status(404).json({ message: "No data found for the given criteria." });
+    }
+
+    // Create PDF document
+    const doc = new PDFDocument({ margin: 30, size: 'A4' });
+
+    // Set response headers
+    res.setHeader('Content-Disposition', 'attachment; filename="info-data.pdf"');
+    res.setHeader('Content-Type', 'application/pdf');
+
+    // Pipe the PDF stream to response
+    doc.pipe(res);
+
+    // Title
+    doc.fontSize(18).text('Info Data Report', { align: 'center' });
+    doc.moveDown();
+
+    // Table header
+    const headers = Object.keys(info[0]);
+    doc.fontSize(12).font('Helvetica-Bold');
+    headers.forEach(h => doc.text(h, { continued: true, width: 100 }));
+    doc.moveDown(0.5);
+    doc.font('Helvetica');
+
+    // Table data
+    info.forEach(record => {
+      headers.forEach(key => {
+        const value = record[key] !== null ? record[key].toString() : '';
+        doc.text(value, { continued: true, width: 100 });
+      });
+      doc.moveDown(0.5);
+    });
+
+    doc.end(); // Finish writing
+
+  } catch (error) {
+    console.error("error : ", error);
+    res.status(500).json({ message: "error", error: error.message });
+  }
+};
 
 
 exports.DeviceInfo = async (req, res) => {

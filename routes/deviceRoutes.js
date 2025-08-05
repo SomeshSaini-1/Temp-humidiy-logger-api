@@ -11,6 +11,7 @@ router.post("/Update_device",deviceControler.update_device);
 router.post("/add_Info",infomation.DeviceInfo);
 router.post("/get_Info",infomation.get_DeviceInfo);
 router.get("/Get_info_excle",infomation.Get_info_excle);
+router.get("/Get_info_pdf",infomation.Get_info_pdf);
 
 
 module.exports = router;
