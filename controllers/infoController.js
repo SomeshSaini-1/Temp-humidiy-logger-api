@@ -5,6 +5,7 @@ const path = require('path');
 const PDFDocument = require('pdfkit');
 
 
+
 exports.Get_info_excle = async (req, res) => {
     try {
         const { device_id, from, to } = req.query;
@@ -55,45 +56,57 @@ exports.Get_info_pdf = async (req, res) => {
       }
     }).lean();
 
-    if (info.length === 0) {
-      return res.status(404).json({ message: "No data found for the given criteria." });
+    if (!info.length) {
+      return res.status(404).json({ message: 'No data found.' });
     }
 
-    // Create PDF document
-    const doc = new PDFDocument({ margin: 30, size: 'A4' });
+    const doc = new PDFDocument({ margin: 30, size: 'A4', layout: 'portrait' });
 
-    // Set response headers
-    res.setHeader('Content-Disposition', 'attachment; filename="info-data.pdf"');
     res.setHeader('Content-Type', 'application/pdf');
-
-    // Pipe the PDF stream to response
+    res.setHeader('Content-Disposition', 'attachment; filename="info-data.pdf"');
     doc.pipe(res);
 
-    // Title
-    doc.fontSize(18).text('Info Data Report', { align: 'center' });
+    doc.fontSize(18).text('Sensor Data Report', { align: 'center' });
     doc.moveDown();
 
-    // Table header
-    const headers = Object.keys(info[0]);
-    doc.fontSize(12).font('Helvetica-Bold');
-    headers.forEach(h => doc.text(h, { continued: true, width: 100 }));
-    doc.moveDown(0.5);
-    doc.font('Helvetica');
+    // Table headers
+    const tableTop = 100;
+    const colSpacing = [40, 120, 220, 360, 440]; // X positions of columns
 
-    // Table data
-    info.forEach(record => {
-      headers.forEach(key => {
-        const value = record[key] !== null ? record[key].toString() : '';
-        doc.text(value, { continued: true, width: 100 });
+    doc.fontSize(12).font('Helvetica-Bold');
+    doc.text('Sr. No.', colSpacing[0], tableTop);
+    doc.text('Device ID', colSpacing[1], tableTop);
+    doc.text('Date/Time', colSpacing[2], tableTop);
+    doc.text('Humidity', colSpacing[3], tableTop);
+    doc.text('Temperature', colSpacing[4], tableTop);
+    doc.moveTo(30, tableTop + 15).lineTo(570, tableTop + 15).stroke();
+
+    // Table rows
+    doc.font('Helvetica');
+    let y = tableTop + 25;
+
+    info.forEach((item, i) => {
+      if (y > 750) {
+        doc.addPage();
+        y = 50;
+      }
+
+      const date = new Date(item.createdAt).toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
       });
-      doc.moveDown(0.5);
+
+      doc.text(i + 1, colSpacing[0], y);
+      doc.text(item.device_id || '-', colSpacing[1], y);
+      doc.text(date, colSpacing[2], y);
+      doc.text(item.humidity ?? item.hume ?? '-', colSpacing[3], y);
+      doc.text(item.temperature ?? item.Temp ?? '-', colSpacing[4], y);
+      y += 20;
     });
 
-    doc.end(); // Finish writing
-
-  } catch (error) {
-    console.error("error : ", error);
-    res.status(500).json({ message: "error", error: error.message });
+    doc.end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error generating PDF', error: err.message });
   }
 };
 
