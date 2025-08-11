@@ -131,7 +131,7 @@ exports.DeviceInfo = async (req, res) => {
 
 exports.get_DeviceInfo = async (req, res) => {
     try {
-        const { device_id, page = 1, limit = 100 } = req.body;
+        const { device_id, page = 1, limit = 1100 } = req.body;
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
